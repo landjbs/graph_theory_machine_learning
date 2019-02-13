@@ -13,7 +13,11 @@ mnist_train_small = pd.read_csv("https://download.mlcc.google.com/mledu-datasets
 #mnist_train_small = mnist_train_small.reindex(
 #    np.random.permutation(mnist_train_small.index))
 
-print(mnist_train_small.describe())
+mnist_train_small['>5'] = mnist_train_small['6'].apply(lambda val: val > 5)
+
+print(mnist_train_small.head())
+
+
 
 # function to process raw data
 def preprocess_data(mnist_train_small):
