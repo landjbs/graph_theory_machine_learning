@@ -10,14 +10,15 @@ from keras.layers import Dense, Activation
 # import, reindex, and validate data
 mnist_train_small = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
 
-#mnist_train_small = mnist_train_small.reindex(
-#    np.random.permutation(mnist_train_small.index))
+mnist_train_small = mnist_train_small.reindex(
+    np.random.permutation(mnist_train_small.index))
 
-mnist_train_small['>5'] = mnist_train_small['6'].apply(lambda val: val > 5)
+mnist_bigs = mnist_train_small[mnist_train_small['6']>4]
 
-print(mnist_train_small.head())
+mnist_smalls = mnist_train_small[mnist_train_small['6']<=4]
 
-
+print(mnist_bigs.describe())
+print(mnist_smalls.describe())
 
 # function to process raw data
 def preprocess_data(mnist_train_small):
