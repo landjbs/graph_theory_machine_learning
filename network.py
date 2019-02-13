@@ -29,30 +29,29 @@ def preprocess_data(mnist_train_small):
 
 # preprocess data
 X,y = preprocess_data(mnist_train_small)
-
 # one-hot encode targets
 y_encoded = keras.utils.to_categorical(y,num_classes=10)
-
 # train test split data
 X_train,X_test,y_train,y_test=train_test_split(X,y_encoded)
 
-# define layers of and compile model
-lowModel = Sequential([
-    Dense(300, input_shape=(784,)),
-    Activation('sigmoid'),
-    Dense(300,input_shape=(32,)),
-    Activation('sigmoid'),
-    Dense(10),
-    Activation('softmax'),
-])
+def train_lowModel(X_train, y_train, X_test, y_test):
+    # define layers of and compile model
+    lowModel = Sequential([
+        Dense(300, input_shape=(784,)),
+        Activation('sigmoid'),
+        Dense(300,input_shape=(32,)),
+        Activation('sigmoid'),
+        Dense(10),
+        Activation('softmax'),
+    ])
+    lowModel.compile(optimizer='rmsprop',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    # fit model to train data
+    lowModel.fit(X_train, y_train, epochs=50, batch_size=400)
+    # evaluate accuracy on test data
+    loss_and_metrics = lowModel.evaluate(X_test, y_test, batch_size=128)
+    print(loss_and_metrics)
+    return lowModel
 
-lowModel.compile(optimizer='rmsprop',
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-
-# fit model to train data
-lowModel.fit(X_train, y_train, epochs=50, batch_size=400)
-
-# evaluate accuracy on test data
-loss_and_metrics = lowModel.evaluate(X_test, y_test, batch_size=128)
-print(loss_and_metrics)
+lowModel = train_lowModel(X_train, y_train, X_test, y_test)
