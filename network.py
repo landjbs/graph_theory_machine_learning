@@ -4,6 +4,8 @@ import keras
 import tensorflow as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import Dense, Activation
 
 # import, reindex, and validate data
 mnist_train_small = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
@@ -34,12 +36,8 @@ y_encoded = keras.utils.to_categorical(y,num_classes=10)
 # train test split data
 X_train,X_test,y_train,y_test=train_test_split(X,y_encoded)
 
-# neural net
-from keras.models import Sequential
-from keras.layers import Dense, Activation
-
 # define layers of and compile model
-model = Sequential([
+lowModel = Sequential([
     Dense(300, input_shape=(784,)),
     Activation('sigmoid'),
     Dense(300,input_shape=(32,)),
@@ -48,13 +46,13 @@ model = Sequential([
     Activation('softmax'),
 ])
 
-model.compile(optimizer='rmsprop',
+lowModel.compile(optimizer='rmsprop',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 # fit model to train data
-model.fit(X_train, y_train, epochs=100, batch_size=400)
+lowModel.fit(X_train, y_train, epochs=50, batch_size=400)
 
 # evaluate accuracy on test data
-loss_and_metrics = model.evaluate(X_test, y_test, batch_size=128)
+loss_and_metrics = lowModel.evaluate(X_test, y_test, batch_size=128)
 print(loss_and_metrics)
