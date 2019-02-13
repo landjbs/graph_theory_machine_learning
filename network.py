@@ -10,15 +10,15 @@ from keras.layers import Dense, Activation
 # import, reindex, and validate data
 mnist_train = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
 
-mnist_train = mnist_train_small.reindex(
+mnist_train = mnist_train.reindex(
     np.random.permutation(mnist_train.index))
 
 # create 2 dataframe: bigger than 4 and less than or equal to 4
 mnist_bigs_train = mnist_train[mnist_train['6']>4]
 mnist_smalls_train = mnist_train[mnist_train['6']<=4]
 
-print(mnist_bigs_train.describe())
-print(mnist_smalls_train.describe())
+print("Bigs:\n",mnist_bigs_train.describe())
+print("Smalls:\n",mnist_smalls_train.describe())
 
 def preprocess_data(mnist_train_small):
   """
@@ -39,7 +39,9 @@ y_bigs_encoded = keras.utils.to_categorical(y_bigs,num_classes=10)
 y_smalls_encoded = keras.utils.to_categorical(y_smalls,num_classes=10)
 
 # train test split data
-#X_train,X_test,y_train,y_test=train_test_split(X,y_encoded)
+X_bigs_train, X_bigs_test, y_bigs_train, y_bigs_test = train_test_split(X_bigs, y_bigs_encoded)
+X_smalls_train, X_smalls_test, y_smalls_train, y_smalls_test = train_test_split(X_smalls, y_smalls_encoded)
+
 
 def train_model(X_train, y_train, X_test, y_test):
     # define layers of and compile model
@@ -61,5 +63,9 @@ def train_model(X_train, y_train, X_test, y_test):
     print(loss_and_metrics)
     return model
 
-bigs_model = train_model(X_train, y_train, X_test, y_test)
-smalls_model = train_model(X_train, y_train, X_test, y_test)
+print("Bigs Model Training:\n")
+bigs_model = train_model(X_bigs_train, y_bigs_train, X_bigs_test, y_bigs_test)
+print("Smalls Model Training:\n")
+smalls_model = train_model(X_smalls_train, y_smalls_train, X_smalls_test, y_smalls_test)
+
+print(f"Big {bigs_model}\nSmall {smalls_model}")
