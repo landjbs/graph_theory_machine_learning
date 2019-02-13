@@ -8,19 +8,18 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 
 # import, reindex, and validate data
-mnist_train_small = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
+mnist_train = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
 
-mnist_train_small = mnist_train_small.reindex(
-    np.random.permutation(mnist_train_small.index))
+mnist_train = mnist_train_small.reindex(
+    np.random.permutation(mnist_train.index))
 
-mnist_bigs = mnist_train_small[mnist_train_small['6']>4]
+# create 2 dataframe: bigger than 4 and less than or equal to 4
+mnist_bigs_train = mnist_train[mnist_train['6']>4]
+mnist_smalls_train = mnist_train[mnist_train['6']<=4]
 
-mnist_smalls = mnist_train_small[mnist_train_small['6']<=4]
+print(mnist_bigs_train.describe())
+print(mnist_smalls_train.describe())
 
-print(mnist_bigs.describe())
-print(mnist_smalls.describe())
-
-# function to process raw data
 def preprocess_data(mnist_train_small):
   """
   Args: mnist_train_small dataframe of number shapes and labels
@@ -32,16 +31,19 @@ def preprocess_data(mnist_train_small):
   output_targets["label"]=mnist_train_small["6"]
   return output_features,output_targets
 
-# preprocess data
-X,y = preprocess_data(mnist_train_small)
-# one-hot encode targets
-y_encoded = keras.utils.to_categorical(y,num_classes=10)
-# train test split data
-X_train,X_test,y_train,y_test=train_test_split(X,y_encoded)
+X_bigs, y_bigs = preprocess_data(mnist_bigs_train)
+X_smalls, y_smalls = preprocess_data(mnist_smalls_train)
 
-def train_lowModel(X_train, y_train, X_test, y_test):
+# one-hot encode targets
+y_bigs_encoded = keras.utils.to_categorical(y_bigs,num_classes=10)
+y_smalls_encoded = keras.utils.to_categorical(y_smalls,num_classes=10)
+
+# train test split data
+#X_train,X_test,y_train,y_test=train_test_split(X,y_encoded)
+
+def train_model(X_train, y_train, X_test, y_test):
     # define layers of and compile model
-    lowModel = Sequential([
+    model = Sequential([
         Dense(300, input_shape=(784,)),
         Activation('sigmoid'),
         Dense(300,input_shape=(32,)),
@@ -49,14 +51,15 @@ def train_lowModel(X_train, y_train, X_test, y_test):
         Dense(10),
         Activation('softmax'),
     ])
-    lowModel.compile(optimizer='rmsprop',
+    model.compile(optimizer='rmsprop',
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
     # fit model to train data
-    lowModel.fit(X_train, y_train, epochs=50, batch_size=400)
+    model.fit(X_train, y_train, epochs=50, batch_size=400)
     # evaluate accuracy on test data
-    loss_and_metrics = lowModel.evaluate(X_test, y_test, batch_size=128)
+    loss_and_metrics = model.evaluate(X_test, y_test, batch_size=128)
     print(loss_and_metrics)
-    return lowModel
+    return model
 
-lowModel = train_lowModel(X_train, y_train, X_test, y_test)
+bigs_model = train_model(X_train, y_train, X_test, y_test)
+smalls_model = train_model(X_train, y_train, X_test, y_test)
