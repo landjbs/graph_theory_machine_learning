@@ -3,16 +3,15 @@ import matplotlib.pyplot as plt
 import keras
 import tensorflow as tf
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 # import, reindex, and validate data
 mnist_train_small = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
 
-mnist_train_small = mnist_train_small.reindex(
-    np.random.permutation(mnist_train_small.index))
+#mnist_train_small = mnist_train_small.reindex(
+#    np.random.permutation(mnist_train_small.index))
 
-mnist_train_small.describe()
-
-print(mnist_train_small)
+print(mnist_train_small.describe())
 
 # function to process raw data
 def preprocess_data(mnist_train_small):
