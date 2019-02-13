@@ -68,11 +68,11 @@ bigs_model = train_model(X_bigs_train, y_bigs_train, X_bigs_test, y_bigs_test)
 print("\nSmalls Model Training:")
 smalls_model = train_model(X_smalls_train, y_smalls_train, X_smalls_test, y_smalls_test)
 
-print(f"Big {bigs_model}\nSmall {smalls_model}")
+print(f"Big: {bigs_model}; Small: {smalls_model}\nModels created!")
 
-def test_models(IMAGE_INDEX):
+def test_models(dataset=X_bigs, IMAGE_INDEX):
     # show sample image
-    sample_image = (X_train.loc[IMAGE_INDEX])
+    sample_image = (dataset.loc[IMAGE_INDEX])
     plt.imshow(sample_image.reshape(28,28))
     # find predictions for each model
     bigs_preds = (bigs_model.predict(np.expand_dims(sample_image,axis=0)))
@@ -80,3 +80,5 @@ def test_models(IMAGE_INDEX):
     # plot predicitons
     plt.plot(bigs_preds[0])
     plt.plot(smalls_preds[0])
+
+def create_odds_data():
