@@ -32,18 +32,6 @@ def preprocess_data(mnist_train_small):
   output_targets["label"]=mnist_train_small["6"]
   return output_features,output_targets
 
-X_bigs, y_bigs = preprocess_data(mnist_bigs_train)
-X_smalls, y_smalls = preprocess_data(mnist_smalls_train)
-
-# one-hot encode targets
-y_bigs_encoded = keras.utils.to_categorical(y_bigs,num_classes=10)
-y_smalls_encoded = keras.utils.to_categorical(y_smalls,num_classes=10)
-
-# train test split data
-X_bigs_train, X_bigs_test, y_bigs_train, y_bigs_test = train_test_split(X_bigs, y_bigs_encoded)
-X_smalls_train, X_smalls_test, y_smalls_train, y_smalls_test = train_test_split(X_smalls, y_smalls_encoded)
-
-
 def train_model(X_train, y_train, X_test, y_test):
     # define layers of and compile model
     model = Sequential([
@@ -64,37 +52,36 @@ def train_model(X_train, y_train, X_test, y_test):
     print(loss_and_metrics)
     return model
 
-print("\nBigs Model Training:")
-bigs_model = train_model(X_bigs_train, y_bigs_train, X_bigs_test, y_bigs_test)
-pickle.dump(bigs_model, open('bigs_model.sav','wb'))
+def make_big_small():
+    print("\nBigs Model Training:")
+    bigs_model = train_model(X_bigs_train, y_bigs_train, X_bigs_test, y_bigs_test)
+    pickle.dump(bigs_model, open('bigs_model.sav','wb'))
 
-print("\nSmalls Model Training:")
-smalls_model = train_model(X_smalls_train, y_smalls_train, X_smalls_test, y_smalls_test)
-pickle.dump(smalls_model, open('smalls_model.sav','wb'))
+    print("\nSmalls Model Training:")
+    smalls_model = train_model(X_smalls_train, y_smalls_train, X_smalls_test, y_smalls_test)
+    pickle.dump(smalls_model, open('smalls_model.sav','wb'))
 
-print(f"Big: {bigs_model}; Small: {smalls_model}\nModels created!")
+    print(f"Big: {bigs_model}; Small: {smalls_model}\nModels created!")
 
-test_models()
-
-def test_models(dataset=X_bigs, IMAGE_INDEX=0):
+def test_models(modelList, dataset, IMAGE_INDEX):
     # show sample image
     sample_image = (dataset.loc[IMAGE_INDEX])
     plt.imshow(sample_image.reshape(28,28))
+    plt.show()
     # find predictions for each model
-    bigs_preds = (bigs_model.predict(np.expand_dims(sample_image,axis=0)))
-    smalls_preds = (smalls_model.predict(np.expand_dims(sample_image,axis=0)))
-    # plot predicitons
-    plt.plot(bigs_preds[0])
-    plt.show()
-    plt.plot(smalls_preds[0])
-    plt.show()
+    for modelName in modelList:
+        curModel = pickle.load(open(modelName, "rb"))
+        curPreds = curModel.predict(np.expand_dims(sample_image, axis=0))
+        plt.plot(curPreds[0])
+        plt.show()
 
-def create_odds_data(length=1000):
-    numsMatrix = np.zeros((length,11))
-    for row in range(length):
-      curNum = np.random.randint(0,10)
-      numsMatrix[row,curNum-1] = 1
-      if curNum % 2 == 0:
-        numsMatrix[row,10] = 0
-      else: numsMatrix[row,10] = 1
-    return numsMatrix
+X_bigs, y_bigs = preprocess_data(mnist_bigs_train)
+X_smalls, y_smalls = preprocess_data(mnist_smalls_train)
+
+# one-hot encode targets
+y_bigs_encoded = keras.utils.to_categorical(y_bigs,num_classes=10)
+y_smalls_encoded = keras.utils.to_categorical(y_smalls,num_classes=10)
+
+# train test split data
+X_bigs_train, X_bigs_test, y_bigs_train, y_bigs_test = train_test_split(X_bigs, y_bigs_encoded)
+X_smalls_train, X_smalls_test, y_smalls_train, y_smalls_test = train_test_split(X_smalls, y_smalls_encoded)
