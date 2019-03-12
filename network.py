@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Activation
+import pickle
 
 # import, reindex, and validate data
 mnist_train = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/mnist_train_small.csv", sep=",")
@@ -65,12 +66,17 @@ def train_model(X_train, y_train, X_test, y_test):
 
 print("\nBigs Model Training:")
 bigs_model = train_model(X_bigs_train, y_bigs_train, X_bigs_test, y_bigs_test)
+pickle.dump(bigs_model, open('bigs_model.sav','wb'))
+
 print("\nSmalls Model Training:")
 smalls_model = train_model(X_smalls_train, y_smalls_train, X_smalls_test, y_smalls_test)
+pickle.dump(smalls_model, open('smalls_model.sav','wb'))
 
 print(f"Big: {bigs_model}; Small: {smalls_model}\nModels created!")
 
-def test_models(dataset=X_bigs, IMAGE_INDEX):
+test_models()
+
+def test_models(dataset=X_bigs, IMAGE_INDEX=0):
     # show sample image
     sample_image = (dataset.loc[IMAGE_INDEX])
     plt.imshow(sample_image.reshape(28,28))
@@ -79,6 +85,16 @@ def test_models(dataset=X_bigs, IMAGE_INDEX):
     smalls_preds = (smalls_model.predict(np.expand_dims(sample_image,axis=0)))
     # plot predicitons
     plt.plot(bigs_preds[0])
+    plt.show()
     plt.plot(smalls_preds[0])
+    plt.show()
 
-def create_odds_data():
+def create_odds_data(length=1000):
+    numsMatrix = np.zeros((length,11))
+    for row in range(length):
+      curNum = np.random.randint(0,10)
+      numsMatrix[row,curNum-1] = 1
+      if curNum % 2 == 0:
+        numsMatrix[row,10] = 0
+      else: numsMatrix[row,10] = 1
+    return numsMatrix
